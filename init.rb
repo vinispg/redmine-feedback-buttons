@@ -8,4 +8,4 @@ Redmine::Plugin.register :redmine_feedback_buttons do
 end
 
 # Hook para adicionar o botão na view dos chamados
-require_dependency 'redmine_feedback_buttons/hooks/view_issues_show_details_bottom_hook'
+require File.expand_path('lib/redmine_feedback_buttons/hooks/view_issues_show_details_bottom_hook', __dir__)

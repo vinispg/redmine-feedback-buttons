@@ -1,0 +1,9 @@
+<% if @issue.status.name == 'Aguardando Feedback' %>
+  <div id="feedback-buttons">
+    <%= form_with url: feedback_buttons_path, method: :post do %>
+      <%= hidden_field_tag :issue_id, @issue.id %>
+      <%= submit_tag 'SIM', name: 'response', value: 'SIM' %>
+      <%= submit_tag 'NÃO', name: 'response', value: 'NAO' %>
+    <% end %>
+  </div>
+<% end %>

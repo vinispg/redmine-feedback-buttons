@@ -1,9 +1,49 @@
 <% if @issue.status.name == 'Aguardando Feedback' %>
   <div id="feedback-buttons">
-    <%= form_with url: feedback_buttons_path, method: :post do %>
-      <%= hidden_field_tag :issue_id, @issue.id %>
-      <%= submit_tag 'SIM', name: 'response', value: 'SIM' %>
-      <%= submit_tag 'NÃO', name: 'response', value: 'NAO' %>
-    <% end %>
+    <p>Chamado aguardando aprovação</p>
+    <%= hidden_field_tag :issue_id, @issue.id, id: 'issue_id' %>
+    <button id="feedback_yes" class="feedback-button yes-button">Aprovar</button>
+    <button id="feedback_no" class="feedback-button no-button">Recusar</button>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('feedback_yes').addEventListener('click', function(event) {
+        event.preventDefault();
+        sendFeedback('Aprovar');
+      });
+
+      document.getElementById('feedback_no').addEventListener('click', function(event) {
+        event.preventDefault();
+        sendFeedback('Recusar');
+      });
+
+      function sendFeedback(response) {
+        var issueId = document.getElementById('issue_id').value;
+
+        fetch('/feedback_buttons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            response: response,
+            issue_id: issueId
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+          if (data.success) {
+            location.reload(); // Recarregar a página para atualizar o status do chamado
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          alert('Erro ao enviar feedback.');
+        });
+      }
+    });
+  </script>
 <% end %>

@@ -1,4 +1,3 @@
-# plugins/redmine_feedback_buttons/app/controllers/feedback_buttons_controller.rb
 class FeedbackButtonsController < ApplicationController
   unloadable
 
@@ -6,26 +5,20 @@ class FeedbackButtonsController < ApplicationController
     issue_id = params[:issue_id]
     response = params[:response]
 
-   # api_response = nil
-    #if response == 'Aprovar'
-    #  api_response = send_feedback_to_external_api(issue_id, response)
-    #end
-
     issue = Issue.find(issue_id)
-    if response == 'Recusar'
-      rejected_status = IssueStatus.find_by(name: 'Rejeitada') # ou o nome do status de rejeição
-      issue.status = rejected_status
+
+    if response == 'Aprovar' && api_response.present? && api_response.code.to_i == 200
+      api_response = send_feedback_to_external_api(issue_id, response)
+      closed_status = IssueStatus.find_by(name: 'Fechada')
+      issue.status = closed_status
+    elsif response == 'Recusar'
+      rejected_status = IssueStatus.find_by(name: 'Rejeitada')
+      issue.situacao = rejected_status
+      if issue.save
+	render json: { success: true, message: 'Aprovação rejeitada.'}
     end
 
-   # if response == 'Aprovar' && api_response.present? && api_response.code.to_i == 200
-    #  closed_status = IssueStatus.find_by(name: 'Fechada')
-     # issue.status = closed_status
-    #elsif response == 'Recusar'
-     # rejected_status = IssueStatus.find_by(name: 'Rejeitada')
-     # issue.status = rejected_status
-   # end
-
-    if api_response.code.to_i == 200
+    if api_response.present? && api_response.code.to_i == 200
       render json: { success: true, message: 'Uma pesquisa de satisfação foi enviada para seu email.' }
     else
       render json: { success: false, message: 'Erro ao processar requisição.' }

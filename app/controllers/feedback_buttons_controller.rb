@@ -16,6 +16,7 @@ class FeedbackButtonsController < ApplicationController
       issue.situacao = rejected_status
       if issue.save
 	render json: { success: true, message: 'Aprovação rejeitada.'}
+      end
     end
 
     if api_response.present? && api_response.code.to_i == 200

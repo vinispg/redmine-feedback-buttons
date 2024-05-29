@@ -24,7 +24,10 @@ class FeedbackButtonsController < ApplicationController
 
     if api_response.is_a?(Net::HTTPSuccess)
       #render json: { success: true, message: 'Uma pesquisa de satisfação foi enviada para seu email.' }
-       render json: { success: true, message: "API Response: #{api_response}" }
+      
+      closed_status = IssueStatus.find_by(name: 'Fechada')
+      issue.status = closed_status
+      render json: { success: true, message: "API Response: #{api_response}" }
     else
       render json: { success: false, message: "Erro ao processar requisição. Detalhes: #{api_response}" }
     end

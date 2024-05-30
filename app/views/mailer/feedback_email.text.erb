@@ -1,10 +1,11 @@
-Olá <%= @issue_author %>,
+<!-- plugins/redmine_feedback_buttons/app/views/mailer/feedback_email.text.erb -->
+Olá <%= @issue.author.name %>,
 
-O chamado ##<%= @issue_id %> - <%= @issue_subject %> foi finalizado.
+Seu chamado <%= @issue.id %> - "<%= @issue.subject %>" foi atualizado para o status "Aguardando Feedback".
 
-Feedback:
+Notas:
 <%= @notes %>
+<%= @user %>
 
-Atenciosamente,
-
-Despace
+Obrigado,
+Equipe de Suporte

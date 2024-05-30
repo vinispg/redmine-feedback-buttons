@@ -3,7 +3,7 @@ require 'mail'
 
 module RedmineFeedbackButtons
   module Hooks
-    class EmailSender < ActionMailer::Base
+    class EmailSender
       def self.send_feedback_email(issue_id, issue_subject, issue_author, issue_author_email, notes)
         puts "ENTÃO TOMA: #{issue_id} - #{issue_subject} - #{issue_author} - #{issue_author_email} - #{notes}"
 

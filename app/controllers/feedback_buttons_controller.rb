@@ -1,6 +1,55 @@
 class FeedbackButtonsController < ApplicationController
   unloadable
 
+  def approve
+    issue_id = params[:issue_id]
+
+    issue = Issue.find(issue_id)
+    @issue = issue
+    @issue_id = issue_id
+
+    closed_status = IssueStatus.find_by(name: 'Fechada')
+    issue.status = closed_status
+
+    if issue.save
+      flash[:notice] = "Solução do chamado #@issue aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
+    end
+
+    # uri = URI.parse("http://192.168.2.101/issues/#{@issue_id}.json")
+
+    # body = {
+    #   issue: {
+    #     status_id: 5 # id do status 'Fechada' Configurar
+    #   }
+    # }.to_json
+
+    # http = Net::HTTP.new(uri.host, uri.port)
+    # http.use_ssl = uri.scheme == 'https'
+
+    # request = Net::HTTP::Put.new(uri.request_uri, {'Content-Type' => 'application/json', 'X-Redmine-API-Key' => '79e675345a2058e857b5f19b042b7516d8e2a88b'})
+
+    # request.body = body
+
+    # response = http.request(request)
+    #
+    # puts "RESPONSEEEEEEEEEEEEEEEEEEEEEEE: #{response}"
+
+    # if response.is_a?(Net::HTTPRedirection)
+    #   flash[:notice] = 'Chamado aprovado com sucesso!'
+    # else
+    #   flash[:error] = 'Erro ao aprovar o chamado.'
+    # end
+
+    render 'feedback_buttons/approve'
+  end
+
+  def decline
+    @issue = Issue.find(params[:issue_id])
+    # Lógica para recusa
+    flash[:notice] = 'Solução recusada com sucesso!'
+    redirect_to issue_path(@issue)
+  end
+
   def create
     issue_id = params[:issue_id]
     response = params[:response]
@@ -8,11 +57,12 @@ class FeedbackButtonsController < ApplicationController
     issue = Issue.find(issue_id)
 
     if response == 'Aprovar'
-      api_response = send_feedback_to_external_api(issue_id, response)
-      if api_response.is_a?(Net::HTTPSuccess)
-        closed_status = IssueStatus.find_by(name: 'Fechada')
-        issue.status = closed_status
-      end
+      # api_response = send_feedback_to_external_api(issue_id, response)
+      # if api_response.is_a?(Net::HTTPSuccess)
+      #   closed_status = IssueStatus.find_by(name: 'Fechada')
+      #   issue.status = closed_status
+      # end
+      # Implementar logica de abrir pesquisa de satisfação
     elsif response == 'Recusar'
       rejected_status = IssueStatus.find_by(name: 'Rejeitada')
       issue.status = rejected_status
@@ -20,6 +70,7 @@ class FeedbackButtonsController < ApplicationController
         render json: { success: true, message: 'Chamado rejeitado com sucesso.' }
         return
       end
+      # Implementar logica de incluir nota do usuário no chamado
     end
 
     if api_response.is_a?(Net::HTTPSuccess)

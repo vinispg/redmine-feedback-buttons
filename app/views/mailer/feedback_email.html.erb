@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          margin: 20px;
+      }
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 10px;
+          background-color: #f9f9f9;
+      }
+      h1 {
+          color: #333;
+      }
+      a {
+        cursor: pointer;
+      }
+      .button {
+          display: inline-block;
+          padding: 3px 7px;
+          margin: 10px 0;
+          font-size: 16px;
+          color: #fff;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+      .button-approve {
+          background-color: #4CAF50;
+      }
+      .button-decline {
+          background-color: #f44336;
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Olá <%= @user.name %>,</h1>
+  <p>Por favor, dê seu feedback para o chamado <strong>#<%= @issue.id %> - <%= @issue.subject %>.</strong></p>
+  <p><strong>Solução proposta:</strong></p>
+  <p><%= @notes %></p>
+  <p>Você aprova a solução proposta?</p>
+  <p>
+    <a href="<%= approve_url(issue_id: @issue.id) %>" target="_blank" class="button button-approve">Aprovar</a>
+    <a href="<%= decline_url(issue_id: @issue.id) %>" target="_blank" class="button button-decline">Recusar</a>
+  </p>
+  <p>Obrigado.</p>
+</div>
+</body>
+</html>
+

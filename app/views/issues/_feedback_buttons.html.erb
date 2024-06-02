@@ -1,16 +1,38 @@
 <% if @issue.status.name == 'Aguardando Feedback' %>
+  <style>
+      .button {
+          display: inline-block;
+          padding: 3px 7px;
+          margin: 10px 0;
+          font-size: 16px;
+          color: #fff;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+      .button-approve {
+          background-color: #4CAF50;
+      }
+      .button-decline {
+          background-color: #f44336;
+      }
+  </style>
+
   <div id="feedback-buttons">
     <p>Chamado aguardando aprovação</p>
     <%= hidden_field_tag :issue_id, @issue.id, id: 'issue_id' %>
-    <button id="feedback_yes" class="feedback-button yes-button">Aprovar</button>
-    <button id="feedback_no" class="feedback-button no-button">Recusar</button>
+<!--    <button id="feedback_yes" class="button button-approve">Aprovar</button>-->
+<!--    <button id="feedback_no" class="button button-decline">Recusar</button>-->
+    <a href="<%= approve_url(issue_id: @issue.id) %>" class="button button-approve">Aprovar</a>
+    <a href="<%= decline_url(issue_id: @issue.id) %>" class="button button-decline">Recusar</a>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementById('feedback_yes').addEventListener('click', function(event) {
         event.preventDefault();
-        sendFeedback('Aprovar');
+        //sendFeedback('Aprovar');
+        location.reload();
       });
 
       document.getElementById('feedback_no').addEventListener('click', function(event) {

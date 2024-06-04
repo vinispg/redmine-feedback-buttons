@@ -2,31 +2,57 @@ class FeedbackButtonsController < ApplicationController
   unloadable
 
   before_action :verify_authenticity_token, except: [:approve]
+  before_action :require_login
 
   def approve
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
+    closed_status = IssueStatus.find_by(name: 'Fechada') #configurar status de chamado fechado
+    rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
     @issue = issue
     @issue_id = issue_id
 
-    closed_status = IssueStatus.find_by(name: 'Fechada')
-    issue.status = closed_status
-
-    if issue.save
-      flash[:notice] = "Solução do chamado #@issue aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
+    if @issue.status_id == closed_status.id && @issue.custom_value_for(rating_custom_field.id).blank?
+      flash[:notice] = "O chamado já foi aprovado mas seu feedback ainda não foi registrado."
+      render 'feedback_buttons/approve' #Renderiza a view
+      return
     end
 
-    render 'feedback_buttons/approve'
+    if @issue.status_id != closed_status.id
+      issue.status = closed_status
+      if issue.save
+        flash[:notice] = "Solução do chamado #@issue aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
+        render 'feedback_buttons/approve' #Renderiza a view
+      end
+    else
+      flash[:error] = "Este chamado ja foi aprovado ou encerrado anteriormente."
+      redirect_to issue_path(@issue)
+    end
   end
+
   def satisfaction
     rating = params[:rating]
     comment = params[:comment]
     issue_id = params[:issue_id]
     @issue = Issue.find(issue_id)
 
-    flash[:notice] = "Nota: #{rating} Comentário: #{comment} issue_id: #{issue_id}"
+    rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
+    comment_custom_field = IssueCustomField.find_by(name: 'Satisfação') #Nome do campo personalizado
 
-    render 'feedback_buttons/approve' #necessário renderizar uma view
+    if @issue && rating_custom_field && comment_custom_field
+      @issue.custom_field_values = {
+        rating_custom_field.id => rating,
+        comment_custom_field.id => comment
+      }
+    end
+
+    if @issue.save!
+      flash[:notice] = "Obrigado pelo feedback!"
+    else
+      flash[:error] = "Erro ao salvar feedback"
+    end
+    redirect_to issue_path(@issue)
+    #render 'feedback_buttons/approve' #necessário renderizar uma view
   end
 
   def decline

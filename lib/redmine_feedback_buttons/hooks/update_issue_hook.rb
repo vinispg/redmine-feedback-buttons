@@ -7,7 +7,7 @@ module RedmineFeedbackButtons
         notes = context[:params][:issue][:notes]
         user = issue.author
 
-        if status_id.to_i == 10 # id do status 'Aguardando Feedback' Configurar
+        if status_id.to_i == 4 # id do status 'Aguardando Feedback' -> Configurar
           Rails.logger.info "Status ID: #{status_id}, Enviando e-mail para #{issue.author.mail}"
           Mailer.feedback_email(user, issue, notes).deliver_now
         end

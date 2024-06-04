@@ -1,9 +1,10 @@
 class FeedbackButtonsController < ApplicationController
   unloadable
 
+  before_action :verify_authenticity_token, except: [:approve]
+
   def approve
     issue_id = params[:issue_id]
-
     issue = Issue.find(issue_id)
     @issue = issue
     @issue_id = issue_id
@@ -15,32 +16,17 @@ class FeedbackButtonsController < ApplicationController
       flash[:notice] = "Solução do chamado #@issue aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
     end
 
-    # uri = URI.parse("http://192.168.2.101/issues/#{@issue_id}.json")
-
-    # body = {
-    #   issue: {
-    #     status_id: 5 # id do status 'Fechada' Configurar
-    #   }
-    # }.to_json
-
-    # http = Net::HTTP.new(uri.host, uri.port)
-    # http.use_ssl = uri.scheme == 'https'
-
-    # request = Net::HTTP::Put.new(uri.request_uri, {'Content-Type' => 'application/json', 'X-Redmine-API-Key' => '79e675345a2058e857b5f19b042b7516d8e2a88b'})
-
-    # request.body = body
-
-    # response = http.request(request)
-    #
-    # puts "RESPONSEEEEEEEEEEEEEEEEEEEEEEE: #{response}"
-
-    # if response.is_a?(Net::HTTPRedirection)
-    #   flash[:notice] = 'Chamado aprovado com sucesso!'
-    # else
-    #   flash[:error] = 'Erro ao aprovar o chamado.'
-    # end
-
     render 'feedback_buttons/approve'
+  end
+  def satisfaction
+    rating = params[:rating]
+    comment = params[:comment]
+    issue_id = params[:issue_id]
+    @issue = Issue.find(issue_id)
+
+    flash[:notice] = "Nota: #{rating} Comentário: #{comment} issue_id: #{issue_id}"
+
+    render 'feedback_buttons/approve' #necessário renderizar uma view
   end
 
   def decline

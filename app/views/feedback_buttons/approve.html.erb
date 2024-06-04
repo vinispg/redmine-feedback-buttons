@@ -1,1 +1,89 @@
-<h1>Hello World</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa de Satisfação</title>
+  <style>
+      .star-rating {
+          direction: rtl;
+          display: inline-flex;
+          font-size: 2em;
+      }
+
+      .star-rating input[type="radio"] {
+          display: none;
+      }
+
+      .star-rating label {
+          color: #ddd;
+          cursor: pointer;
+          padding: 0 5px;
+      }
+
+      .star-rating input[type="radio"]:checked ~ label {
+          color: #f5c518;
+      }
+
+      .star-rating label:hover,
+      .star-rating label:hover ~ label {
+          color: #f5c518;
+      }
+      .desc {
+          color: #a8a8a8;
+          font-size: 12px;
+      }
+      textarea {
+          border-radius: 5px;
+          border: 2px solid #628DB6;
+          width: 40%;
+          height: 30%;
+      }
+      button {
+          display: inline-block;
+          padding: 3px 7px;
+          margin: 10px 0;
+          font-size: 16px;
+          color: #fff;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+      .button-send {
+          background-color: #628DB6 !important;
+      }
+      .button-send:hover {
+          background-color: #346fa8 !important;
+      }
+  </style>
+</head>
+<body>
+<h1>Pesquisa de Satisfação</h1>
+<p class="desc">Avalie o atendimento prestado no chamado!</p>
+<form id="satisfactionForm" action="/feedback_buttons/satisfaction" method="post">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+  <input type="hidden" name="issue_id" value="<%= @issue.id %>">
+  <div class="star-rating">
+    <input type="radio" id="star5" name="rating" value="5"><label for="star5">&#9733;</label>
+    <input type="radio" id="star4" name="rating" value="4"><label for="star4">&#9733;</label>
+    <input type="radio" id="star3" name="rating" value="3"><label for="star3">&#9733;</label>
+    <input type="radio" id="star2" name="rating" value="2"><label for="star2">&#9733;</label>
+    <input type="radio" id="star1" name="rating" value="1"><label for="star1">&#9733;</label>
+  </div>
+  <br><br>
+  <label for="comment">Comentário (opcional):</label><br>
+  <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
+  <button class="button-send" type="submit">Enviar</button>
+</form>
+
+<script>
+    document.getElementById('satisfactionForm').addEventListener('submit', function(event) {
+        const rating = document.querySelector('input[name="rating"]:checked');
+        if (!rating) {
+            alert('Por favor, realize a avaliação de satisfação.');
+            event.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>

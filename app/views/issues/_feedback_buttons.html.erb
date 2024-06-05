@@ -1,4 +1,4 @@
-<% if @issue.status.name == 'Aguardando Feedback' %>
+<% if @issue.status.name == 'Aguardando Feedback' && @issue.project_id == 1 #configurar %>
   <style>
       .button {
           display: inline-block;

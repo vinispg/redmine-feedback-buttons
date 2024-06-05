@@ -7,21 +7,27 @@ class FeedbackButtonsController < ApplicationController
   def approve
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
+    relations = IssueRelation.where(issue_from_id: issue.id).first
+    issue_relation = Issue.find(relations.issue_to_id)
     closed_status = IssueStatus.find_by(name: 'Fechada') #configurar status de chamado fechado
     rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
     @issue = issue
-    @issue_id = issue_id
 
-    if @issue.status_id == closed_status.id && @issue.custom_value_for(rating_custom_field.id).blank?
+
+
+    #valida se o chamado está encerrado e a pesquisa ainda não foi respondida
+    if @issue.status_id == closed_status.id && @issue.custom_value_for(rating_custom_field.id).value.blank?
       flash[:notice] = "O chamado já foi aprovado mas seu feedback ainda não foi registrado."
       render 'feedback_buttons/approve' #Renderiza a view
       return
     end
 
+
     if @issue.status_id != closed_status.id
       issue.status = closed_status
-      if issue.save
-        flash[:notice] = "Solução do chamado #@issue aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
+      issue_relation.status = closed_status
+      if issue.save && issue_relation.save
+        flash[:notice] = "Solução do chamado: <strong>##{@issue.id} - #{@issue.subject}</strong> foi aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
         render 'feedback_buttons/approve' #Renderiza a view
       end
     else
@@ -51,8 +57,8 @@ class FeedbackButtonsController < ApplicationController
     else
       flash[:error] = "Erro ao salvar feedback"
     end
+
     redirect_to issue_path(@issue)
-    #render 'feedback_buttons/approve' #necessário renderizar uma view
   end
 
   def decline

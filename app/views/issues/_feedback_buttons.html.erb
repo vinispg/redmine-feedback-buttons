@@ -21,8 +21,6 @@
   <div id="feedback-buttons">
     <p>Chamado aguardando aprovação</p>
     <%= hidden_field_tag :issue_id, @issue.id, id: 'issue_id' %>
-<!--    <button id="feedback_yes" class="button button-approve">Aprovar</button>-->
-<!--    <button id="feedback_no" class="button button-decline">Recusar</button>-->
     <a href="<%= approve_url(issue_id: @issue.id) %>" target="_blank" class="button button-approve">Aprovar</a>
     <a href="<%= decline_url(issue_id: @issue.id) %>" target="_blank" class="button button-decline">Recusar</a>
   </div>

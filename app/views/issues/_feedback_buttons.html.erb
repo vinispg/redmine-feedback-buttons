@@ -3,7 +3,6 @@
       .btn {
           display: inline-block;
           padding: 3px 7px;
-          margin: 10px 0;
           font-size: 16px;
           color: #fff !important;
           text-align: center;
@@ -22,54 +21,15 @@
       .button-decline:hover {
           background-color: #fa493c;
       }
+      .box-btn {
+          margin-bottom: 20px;
+      }
   </style>
 
-  <div id="feedback-buttons">
-    <p>Chamado aguardando aprovação</p>
+  <div class="box-btn" id="feedback-buttons">
+    <p><strong>Chamado aguardando aprovação:</strong></p>
     <%= hidden_field_tag :issue_id, @issue.id, id: 'issue_id' %>
     <a href="<%= approve_url(issue_id: @issue.id) %>" target="_blank" class="btn button-send">Aprovar</a>
     <a href="<%= declined_url(issue_id: @issue.id) %>" target="_blank" class="btn button-decline">Recusar</a>
   </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById('feedback_yes').addEventListener('click', function(event) {
-        event.preventDefault();
-        //sendFeedback('Aprovar');
-        location.reload();
-      });
-
-      document.getElementById('feedback_no').addEventListener('click', function(event) {
-        event.preventDefault();
-        sendFeedback('Recusar');
-      });
-
-      function sendFeedback(response) {
-        var issueId = document.getElementById('issue_id').value;
-
-        fetch('/feedback_buttons', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({
-            response: response,
-            issue_id: issueId
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message);
-          if (data.success) {
-            location.reload(); // Recarregar a página para atualizar o status do chamado
-          }
-        })
-        .catch(error => {
-          console.error('Erro:', error);
-          alert('Erro ao enviar feedback.');
-        });
-      }
-    });
-  </script>
 <% end %>

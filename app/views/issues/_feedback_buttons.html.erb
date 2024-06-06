@@ -1,28 +1,34 @@
 <% if @issue.status.name == 'Aguardando Feedback' && @issue.project_id == 1 #configurar %>
   <style>
-      .button {
+      .btn {
           display: inline-block;
           padding: 3px 7px;
           margin: 10px 0;
           font-size: 16px;
-          color: #fff;
+          color: #fff !important;
           text-align: center;
           text-decoration: none;
           border-radius: 5px;
       }
-      .button-approve {
-          background-color: #4CAF50;
+      .button-send {
+          background-color: #628DB6 !important;
+      }
+      .button-send:hover {
+          background-color: #346fa8 !important;
       }
       .button-decline {
-          background-color: #f44336;
+          background-color: #f65549;
+      }
+      .button-decline:hover {
+          background-color: #fa493c;
       }
   </style>
 
   <div id="feedback-buttons">
     <p>Chamado aguardando aprovação</p>
     <%= hidden_field_tag :issue_id, @issue.id, id: 'issue_id' %>
-    <a href="<%= approve_url(issue_id: @issue.id) %>" target="_blank" class="button button-approve">Aprovar</a>
-    <a href="<%= decline_url(issue_id: @issue.id) %>" target="_blank" class="button button-decline">Recusar</a>
+    <a href="<%= approve_url(issue_id: @issue.id) %>" target="_blank" class="btn button-send">Aprovar</a>
+    <a href="<%= declined_url(issue_id: @issue.id) %>" target="_blank" class="btn button-decline">Recusar</a>
   </div>
 
   <script>

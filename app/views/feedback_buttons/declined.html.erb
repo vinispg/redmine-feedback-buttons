@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motivo da Recusa</title>
+  <style>
+      .desc_label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+      }
+      textarea {
+          border-radius: 5px;
+          border: 2px solid #628DB6;
+          width: 40%;
+          height: 30%;
+          padding: 10px;
+          font-size: 14px;
+      }
+      button {
+          display: inline-block;
+          padding: 3px 7px;
+          margin: 10px 0;
+          font-size: 16px;
+          color: #fff;
+          text-align: center;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+      .button-send {
+          background-color: #628DB6 !important;
+      }
+      .button-send:hover {
+          background-color: #346fa8 !important;
+      }
+      .button-send:disabled {
+          background-color: #a1b8d1 !important;
+          cursor: not-allowed;
+      }
+      .card {
+          background-color: #f6ffec;
+          border: 1px solid #abff5b;
+          border-radius: 5px;
+          padding: 12px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          max-width: 39%;
+      }
+      .card-header {
+          font-weight: bold;
+          margin-bottom: 10px;
+      }
+      .card-content {
+          font-size: 14px;
+          color: #555;
+      }
+      .error {
+          border-color: red !important;
+      }
+      .error-message {
+          color: red;
+          font-weight: bold;
+          display: none;
+          margin-top: 10px;
+      }
+  </style>
+  <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+          const textarea = document.getElementById('reason');
+          const errorMessage = document.getElementById('error-message');
+          const submitButton = document.querySelector('.button-send');
+
+          textarea.addEventListener('input', () => {
+              if (textarea.value.trim().length < 5) {
+                  textarea.classList.add('error');
+                  errorMessage.style.display = 'block';
+                  submitButton.disabled = true;
+              } else {
+                  textarea.classList.remove('error');
+                  errorMessage.style.display = 'none';
+                  submitButton.disabled = false;
+              }
+          });
+
+          // Inicialmente desativa o botão de envio
+          submitButton.disabled = true;
+      });
+  </script>
+</head>
+<body>
+<h1>Motivo da Recusa</h1>
+<div class="card">
+  <div class="card-header">
+    Último comentário de <%= @assigned_to.firstname %> <%= @assigned_to.lastname %> às <%= @last_comment.created_on.strftime("%d/%m/%Y %H:%M") %>
+  </div>
+  <div class="card-content">
+    <%= @last_comment.notes %>
+  </div>
+</div>
+<form action="/feedback_buttons/submit_refusal" method="post">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+  <input type="hidden" name="issue_id" value="<%= @issue.id %>">
+  <label class="desc_label" for="reason">Por favor, descreva o motivo da recusa e especifique o que ainda deve ser feito:</label>
+  <textarea id="reason" name="refusal_comment" required></textarea>
+  <p style="color: red; font-weight: bold;">Nota: A solicitação só será recusada quando você enviar o motivo.</p>
+  <p id="error-message" class="error-message">O motivo da recusa deve ter pelo menos 5 caracteres.</p>
+  <button class="button-send" type="submit">Enviar Motivo</button>
+</form>
+</body>
+</html>

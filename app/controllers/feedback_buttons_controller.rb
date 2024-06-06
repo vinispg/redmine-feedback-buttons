@@ -13,7 +13,11 @@ class FeedbackButtonsController < ApplicationController
     rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
     @issue = issue
 
-
+    if @issue.author_id != User.current.id
+      flash[:error] = "Somente o autor do chamado pode aprova-lo."
+      redirect_to issue_path(@issue)
+      return
+    end
 
     #valida se o chamado está encerrado e a pesquisa ainda não foi respondida
     if @issue.status_id == closed_status.id && @issue.custom_value_for(rating_custom_field.id).value.blank?
@@ -21,7 +25,6 @@ class FeedbackButtonsController < ApplicationController
       render 'feedback_buttons/approve' #Renderiza a view
       return
     end
-
 
     if @issue.status_id != closed_status.id
       issue.status = closed_status
@@ -61,11 +64,64 @@ class FeedbackButtonsController < ApplicationController
     redirect_to issue_path(@issue)
   end
 
-  def decline
-    @issue = Issue.find(params[:issue_id])
-    # Lógica para recusa
-    flash[:notice] = 'Solução recusada com sucesso!'
-    redirect_to issue_path(@issue)
+  def declined
+    issue_id = params[:issue_id]
+    issue = Issue.find(issue_id)
+    relations = IssueRelation.where(issue_from_id: issue.id).first
+    issue_relation = Issue.find(relations.issue_to_id)
+    assigned_to = User.find(issue_relation.assigned_to_id)
+    refused_status = IssueStatus.find_by(name: 'Rejeitada') #configurar status de chamado recusado
+
+    last_comment = Journal
+                     .where(journalized_id: issue.id, user_id: assigned_to.id, journalized_type: 'Issue')
+                     .where.not(notes: [nil, ''])
+                     .order(created_on: :desc).first
+
+    @issue = issue
+    @last_comment = last_comment
+    @assigned_to = assigned_to
+
+    if @issue.author_id != User.current.id
+      flash[:error] = "Somente o autor do chamado pode recusa-lo."
+      redirect_to issue_path(@issue)
+      return
+    end
+
+    if @issue.status_id != refused_status.id
+      render 'feedback_buttons/declined'
+    else
+      flash[:error] = "Este chamado ja foi recusado anteriormente."
+      redirect_to issue_path(@issue)
+    end
+  end
+
+  def submit_refusal
+    issue_id = params[:issue_id]
+    refusal_comment = params[:refusal_comment]
+    issue = Issue.find(issue_id)
+    relations = IssueRelation.where(issue_from_id: issue.id).first
+    issue_relation = Issue.find(relations.issue_to_id)
+    rejected_status = IssueStatus.find_by(name: 'Rejeitada') #configurar status de chamado fechado
+    rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
+    @issue = issue
+
+    if @issue.status_id != rejected_status.id
+      issue.status = rejected_status
+      issue_relation.status = rejected_status
+
+      journal = issue.journals.build(
+        notes: refusal_comment,
+        user_id: issue.author_id
+      )
+
+      if issue.save && issue_relation.save && journal.save
+        flash[:notice] = "Solução do chamado: <strong>##{issue.id} - #{issue.subject}</strong> foi recusada com sucesso!"
+        redirect_to issue_path(@issue)
+      end
+    else
+      flash[:error] = "Este chamado ja foi recusado anteriormente."
+      redirect_to issue_path(@issue)
+    end
   end
 
   def create

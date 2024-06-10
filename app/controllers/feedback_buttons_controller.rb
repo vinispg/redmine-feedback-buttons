@@ -8,9 +8,8 @@ class FeedbackButtonsController < ApplicationController
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    issue_relation = Issue.find(relations.issue_to_id)
-    closed_status = IssueStatus.find_by(name: 'Fechada') #configurar status de chamado fechado
-    rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
+    closed_status = IssueStatus.find_by(name: 'Fechada') # configurar status de chamado fechado
+    rating_custom_field = IssueCustomField.find_by(name: 'Nota') # Nome do campo personalizado
     @issue = issue
 
     if @issue.author_id != User.current.id
@@ -19,25 +18,34 @@ class FeedbackButtonsController < ApplicationController
       return
     end
 
-    #valida se o chamado está encerrado e a pesquisa ainda não foi respondida
+    # Valida se o chamado está encerrado e a pesquisa ainda não foi respondida
     if @issue.status_id == closed_status.id && @issue.custom_value_for(rating_custom_field.id).value.blank?
       flash[:notice] = "O chamado já foi aprovado mas seu feedback ainda não foi registrado."
-      render 'feedback_buttons/approve' #Renderiza a view
+      render 'feedback_buttons/approve' # Renderiza a view
       return
     end
 
     if @issue.status_id != closed_status.id
       issue.status = closed_status
-      issue_relation.status = closed_status
-      if issue.save && issue_relation.save
+
+      if relations.present?
+        issue_relation = Issue.find(relations.issue_to_id)
+        issue_relation.status = closed_status
+      end
+
+      if issue.save && (relations.nil? || issue_relation.save)
         flash[:notice] = "Solução do chamado: <strong>##{@issue.id} - #{@issue.subject}</strong> foi aprovada com sucesso! De seu feedback sobre o atendimento abaixo."
-        render 'feedback_buttons/approve' #Renderiza a view
+        render 'feedback_buttons/approve' # Renderiza a view
+      else
+        flash[:error] = "Houve um problema ao salvar o status do chamado."
+        redirect_to issue_path(@issue)
       end
     else
-      flash[:error] = "Este chamado ja foi aprovado ou encerrado anteriormente."
+      flash[:error] = "Este chamado já foi aprovado ou encerrado anteriormente."
       redirect_to issue_path(@issue)
     end
   end
+
 
   def satisfaction
     rating = params[:rating]
@@ -68,18 +76,22 @@ class FeedbackButtonsController < ApplicationController
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    issue_relation = Issue.find(relations.issue_to_id)
-    assigned_to = User.find(issue_relation.assigned_to_id)
     refused_status = IssueStatus.find_by(name: 'Rejeitada') #configurar status de chamado recusado
 
-    last_comment = Journal
-                     .where(journalized_id: issue.id, user_id: assigned_to.id, journalized_type: 'Issue')
-                     .where.not(notes: [nil, ''])
-                     .order(created_on: :desc).first
+    if relations.present?
+      issue_relation = Issue.find(relations.issue_to_id)
+      assigned_to = User.find(issue_relation.assigned_to_id)
+
+      last_comment = Journal
+                       .where(journalized_id: issue.id, user_id: assigned_to.id, journalized_type: 'Issue')
+                       .where.not(notes: [nil, ''])
+                       .order(created_on: :desc).first
+
+      @assigned_to = assigned_to
+      @last_comment = last_comment
+    end
 
     @issue = issue
-    @last_comment = last_comment
-    @assigned_to = assigned_to
 
     if @issue.author_id != User.current.id
       flash[:error] = "Somente o autor do chamado pode recusa-lo."
@@ -90,7 +102,7 @@ class FeedbackButtonsController < ApplicationController
     if @issue.status_id != refused_status.id
       render 'feedback_buttons/declined'
     else
-      flash[:error] = "Este chamado ja foi recusado anteriormente."
+      flash[:error] = "Este chamado já foi recusado anteriormente."
       redirect_to issue_path(@issue)
     end
   end
@@ -100,29 +112,39 @@ class FeedbackButtonsController < ApplicationController
     refusal_comment = params[:refusal_comment]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    issue_relation = Issue.find(relations.issue_to_id)
     rejected_status = IssueStatus.find_by(name: 'Rejeitada') #configurar status de chamado fechado
     rating_custom_field = IssueCustomField.find_by(name: 'Nota') #Nome do campo personalizado
     @issue = issue
 
+    if relations.present?
+      issue_relation = Issue.find(relations.issue_to_id)
+    end
+
     if @issue.status_id != rejected_status.id
       issue.status = rejected_status
-      issue_relation.status = rejected_status
+
+      if relations.present?
+        issue_relation.status = rejected_status
+      end
 
       journal = issue.journals.build(
         notes: refusal_comment,
         user_id: issue.author_id
       )
 
-      if issue.save && issue_relation.save && journal.save
+      if issue.save && (relations.nil? || issue_relation.save) && journal.save
         flash[:notice] = "Solução do chamado: <strong>##{issue.id} - #{issue.subject}</strong> foi recusada com sucesso!"
+        redirect_to issue_path(@issue)
+      else
+        flash[:error] = "Houve um problema ao salvar o status do chamado."
         redirect_to issue_path(@issue)
       end
     else
-      flash[:error] = "Este chamado ja foi recusado anteriormente."
+      flash[:error] = "Este chamado já foi recusado anteriormente."
       redirect_to issue_path(@issue)
     end
   end
+
 
   def create
     issue_id = params[:issue_id]

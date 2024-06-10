@@ -83,21 +83,22 @@
               }
           });
 
-          // Inicialmente desativa o botão de envio
           submitButton.disabled = true;
       });
   </script>
 </head>
 <body>
 <h1>Motivo da Recusa</h1>
-<div class="card">
-  <div class="card-header">
-    Último comentário de <%= @assigned_to.firstname %> <%= @assigned_to.lastname %> às <%= @last_comment.created_on.strftime("%d/%m/%Y %H:%M") %>
+<% if @assigned_to.present? && @last_comment.present? %>
+  <div class="card">
+    <div class="card-header">
+      Último comentário de <%= @assigned_to.firstname %> <%= @assigned_to.lastname %> às <%= @last_comment.created_on.strftime("%d/%m/%Y %H:%M") %>
+    </div>
+    <div class="card-content">
+      <%= @last_comment.notes %>
+    </div>
   </div>
-  <div class="card-content">
-    <%= @last_comment.notes %>
-  </div>
-</div>
+<% end %>
 <form action="/feedback_buttons/submit_refusal" method="post">
   <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
   <input type="hidden" name="issue_id" value="<%= @issue.id %>">

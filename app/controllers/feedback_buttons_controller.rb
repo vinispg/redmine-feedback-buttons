@@ -132,7 +132,7 @@ class FeedbackButtonsController < ApplicationController
       )
 
       if issue.save && (relations.nil? || issue_relation.save) && journal.save
-        flash[:notice] = "Solução do chamado: <strong>##{issue.id} - #{issue.subject}</strong> foi recusada com sucesso!"
+        flash[:notice] = "Solução do chamado: <strong>##{issue.id} - #{issue.subject}</strong> foi recusada."
         redirect_to issue_path(@issue)
       else
         flash[:error] = "Houve um problema ao salvar o status do chamado."
@@ -147,12 +147,7 @@ class FeedbackButtonsController < ApplicationController
   def show_issue
     @issue = Issue.find(params[:issue_id])
 
-    if @issue
-      redirect_to issue_path(@issue)
-    else
-      flash[:error] = "Issue not found"
-      redirect_to some_fallback_path
-    end
+    redirect_to issue_path(@issue)
   end
 
   # def create

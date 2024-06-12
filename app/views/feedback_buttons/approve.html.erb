@@ -55,6 +55,10 @@
       .button-send:hover {
           background-color: #346fa8 !important;
       }
+      .button-disabled {
+          cursor: not-allowed !important;
+          opacity: 0.6;
+      }
   </style>
 </head>
 <body>
@@ -71,7 +75,8 @@
     <input type="radio" id="star1" name="rating" value="1"><label for="star1">&#9733;</label>
   </div>
   <br><br>
-  <label for="comment">Comentário (opcional):</label><br>
+  <label for="comment">Comentário:</label><br>
+  <p hidden="hidden" id="msg-feedback">Antes de enviar sua nota, fale um pouco sobre a sua satisfação com o atendimento?</p>
   <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
   <button class="button-send" type="submit">Enviar</button>
 </form>
@@ -79,11 +84,43 @@
 <script>
     document.getElementById('satisfactionForm').addEventListener('submit', function(event) {
         const rating = document.querySelector('input[name="rating"]:checked');
+        const comment = document.getElementById('comment').value.trim();
+
         if (!rating) {
             alert('Por favor, realize a avaliação de satisfação.');
             event.preventDefault();
         }
+
+        if (rating && rating.value <= 3 && comment === '' ) {
+            event.preventDefault();
+        }
     });
+
+    // Função para atualizar o estado do botão com base na classificação e no comentário
+    function updateButtonState() {
+        const rating = document.querySelector('input[name="rating"]:checked');
+        const comment = document.getElementById('comment').value.trim();
+        const msgFeedback = document.getElementById('msg-feedback');
+        const submitButton = document.querySelector('.button-send');
+
+        if (parseInt(rating.value) > 3 || comment !== '') {
+            msgFeedback.setAttribute('hidden', 'hidden');
+            submitButton.classList.remove('button-disabled');
+            submitButton.disabled = false;
+        } else {
+            msgFeedback.removeAttribute('hidden');
+            submitButton.classList.add('button-disabled');
+            submitButton.disabled = true;
+        }
+    }
+
+    // Adiciona um ouvinte de evento de clique aos elementos de input de classificação
+    document.querySelectorAll('input[name="rating"]').forEach(function(input) {
+        input.addEventListener('click', updateButtonState);
+    });
+
+    // Adiciona um ouvinte de evento de entrada ao textarea para detectar mudanças
+    document.getElementById('comment').addEventListener('input', updateButtonState);
 </script>
 </body>
 </html>

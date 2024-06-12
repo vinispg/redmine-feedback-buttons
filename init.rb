@@ -3,8 +3,8 @@ require 'redmine'
 Redmine::Plugin.register :redmine_feedback_buttons do
   name 'Pesquisa de satisfação'
   author 'Vinicios Spigiorin'
-  description 'Este plugin adiciona requisição para API externa a partir de botões nos chamados'
-  version '0.0.1'
+  description 'Este plugin adiciona pesquisa de satisfação e encerramento automatizado dos chamados'
+  version '1.0.0'
 end
 
 # Hook para adicionar o botão na view dos chamados

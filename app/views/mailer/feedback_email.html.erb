@@ -43,7 +43,8 @@
 <body>
 <div class="container">
   <h1>Olá <%= @user.name %>,</h1>
-  <p>Por favor, dê seu feedback para o chamado <strong>#<%= @issue.id %> - <%= @issue.subject %>.</strong></p>
+  <p>Por favor, dê seu feedback para o chamado <a href="<%= show_issue_url(issue_id: @issue.id) %>"><strong>#<%= @issue.id %> - <%= @issue.subject %>.</strong></a></p>
+  <p><b>Descrição:</b> <%= @issue.description %></p>
   <p><strong>Solução proposta:</strong></p>
   <p><%= @notes %></p>
   <p>Você aprova a solução proposta?</p>

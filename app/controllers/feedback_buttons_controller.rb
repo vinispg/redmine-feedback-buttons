@@ -3,13 +3,18 @@ class FeedbackButtonsController < ApplicationController
 
   before_action :verify_authenticity_token, except: [:approve]
   before_action :require_login
-  #11 Fechado
+
+  RESOLVIDO = 23
+  NAO_RESOLVIDO = 36
+  NOTA = 21
+  SATISFACAO = 22
+
   def approve
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    closed_status = IssueStatus.find_by(id: 11) # Id status encerrado
-    rating_custom_field = IssueCustomField.find_by(id: 1) # id do campo personalizado 'NOTA'
+    closed_status = IssueStatus.find_by(id: RESOLVIDO) # Id status resolvido
+    rating_custom_field = IssueCustomField.find_by(id: NOTA) # id do campo personalizado 'NOTA'
     @issue = issue
 
     if @issue.author_id != User.current.id
@@ -53,8 +58,8 @@ class FeedbackButtonsController < ApplicationController
     issue_id = params[:issue_id]
     @issue = Issue.find(issue_id)
 
-    rating_custom_field = IssueCustomField.find_by(id: 1) #Id do campo personalizado NOTA
-    comment_custom_field = IssueCustomField.find_by(id: 2) #Id do campo personalizado Satisfação
+    rating_custom_field = IssueCustomField.find_by(id: NOTA) #Id do campo personalizado NOTA
+    comment_custom_field = IssueCustomField.find_by(id: SATISFACAO) #Id do campo personalizado Satisfação
 
     if @issue && rating_custom_field && comment_custom_field
       @issue.custom_field_values = {
@@ -76,7 +81,7 @@ class FeedbackButtonsController < ApplicationController
     issue_id = params[:issue_id]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    refused_status = IssueStatus.find_by(id: 12) #configurar status de chamado rejeitado
+    refused_status = IssueStatus.find_by(id: NAO_RESOLVIDO) #configurar status de chamado rejeitado
 
     if relations.present?
       issue_relation = Issue.find(relations.issue_to_id)
@@ -112,7 +117,7 @@ class FeedbackButtonsController < ApplicationController
     refusal_comment = params[:refusal_comment]
     issue = Issue.find(issue_id)
     relations = IssueRelation.where(issue_from_id: issue.id).first
-    rejected_status = IssueStatus.find_by(id: 12) #configurar status de chamado rejeitado
+    rejected_status = IssueStatus.find_by(id: NAO_RESOLVIDO) #configurar status de chamado rejeitado
     @issue = issue
 
     if relations.present?

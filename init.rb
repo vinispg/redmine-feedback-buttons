@@ -5,6 +5,8 @@ Redmine::Plugin.register :redmine_feedback_buttons do
   author 'Vinicios Spigiorin'
   description 'Este plugin adiciona pesquisa de satisfação e encerramento automatizado dos chamados'
   version '1.0.0'
+  url 'https://github.com/vinispg/redmine-feedback-buttons'
+  author_url 'https://github.com/vinispg'
 end
 
 # Hook para adicionar o botão na view dos chamados

@@ -1,5 +1,5 @@
-<%# if @issue.status.name == 'Aguardando Feedback' && @issue.project_id == 1 #configurar %>
-<% if @issue.status.id == 10 && @issue.project_id == 1 #configurar %>
+<!--  29 = Status "Aguardando Feedback" 26 = Projeto "Chamados"-->
+<% if @issue.status.id == 29 && @issue.project_id == 26 %>
   <style>
       .btn {
           display: inline-block;
